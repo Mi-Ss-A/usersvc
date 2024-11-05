@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="css/styles.css" />
+        <title>Page 2</title>
+    </head>
+
+    <body class="fade-in">
+        <div class="container common-container">
+            <div class="back-button"></div>
+            <!-- 뒤로 가기 버튼 -->
+
+            <div class="login-container">
+                <h1 class="login-title">Login Your Account</h1>
+
+                <div class="input-field">
+                    <label for="email">Enter Your Email</label>
+                    <input type="email" id="email" placeholder="Email" />
+                </div>
+
+                <div class="input-field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Password" />
+                </div>
+
+                <div class="login-button">
+                    <span>Login</span>
+                </div>
+
+                <div class="create-account">
+                    <span>Create New Account? Sign up</span>
+                </div>
+
+                <div class="forgot-password">
+                    <span>Forget Password?</span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // 페이지가 로드될 때 fade-in 클래스를 추가
+            document.body.classList.add('loaded');
+        </script>
+    </body>
+</html>

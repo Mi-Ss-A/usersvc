@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="css/styles.css" />
+        <title>Welcome Loading</title>
+    </head>
+    <body class="fade-in">
+        <div class="container common-container">
+            <div class="wibee-logo"></div>
+            <h2 class="wibeechat-title">WIBEECHAT</h2>
+            <div class="contents-text">version 1.0</div>
+        </div>
+
+        <script>
+            document.body.classList.add('loaded');
+
+            // 3초 후에 페이지 전환
+            setTimeout(() => {
+                window.location.href = 'page1';
+            }, 3000);
+        </script>
+    </body>
+</html>

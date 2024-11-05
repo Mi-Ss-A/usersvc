@@ -1,0 +1,201 @@
+/* 공통 스타일 */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f0f0;
+}
+
+/* Welcome-Loading 컨테이너 */
+.common-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px; /* Padding 수정 */
+    gap: 20px; /* Gap 수정 */
+
+    position: relative;
+    width: 100%; /* 전체 너비 사용 */
+    max-width: 393px; /* 최대 너비 제한 */
+    height: 852px; /* 높이를 자동으로 조정 */
+    background: radial-gradient(216.43% 100% at 0% 100%, rgba(0, 105, 174, 0) 0%, rgba(0, 105, 174, 0.3) 100%),
+        radial-gradient(216.43% 100% at 100% 100%, rgba(0, 105, 174, 0) 0%, rgba(0, 105, 174, 0.3) 100%), #ffffff;
+    border-radius: 18px;
+    margin: 0 auto; /* 가운데 정렬 */
+}
+
+/* Wibee 로고 */
+.wibee-logo {
+    margin: 0 auto;
+    width: 259px; /* 로고 크기 조정 */
+    height: 259px;
+    background: url('/img/wibee.png') no-repeat center;
+    background-size: contain; /* 이미지 비율 유지 */
+}
+
+/* 버전 정보 텍스트 */
+.contents-text {
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #757171;
+}
+
+/* WIBEECHAT 제목 */
+.wibeechat-title {
+    font-weight: 500;
+    font-size: 35px;
+    line-height: 24px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #00497a;
+}
+
+/* ChattyAI 안내 문구 */
+.description {
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 160%;
+    color: #00497a;
+    text-align: center;
+}
+
+/* 시작하기 버튼 */
+.get-started {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 10px;
+    width: 327px;
+    height: 63px;
+    background: rgba(0, 73, 122, 0.8);
+    border: 1px solid #003c64;
+    border-radius: 16px;
+    cursor: pointer;
+}
+
+.get-started span {
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.03em;
+    text-transform: capitalize;
+    color: #ffffff;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 400px) {
+    .welcome-loading-container,
+    .page-1-container {
+        padding: 20px; /* Padding 줄이기 */
+        gap: 10px; /* Gap 줄이기 */
+    }
+
+    .wibee-logo {
+        width: 80px; /* 로고 크기 줄이기 */
+        height: 80px; /* 로고 크기 줄이기 */
+    }
+
+    .wibeechat-title {
+        font-size: 28px; /* 제목 크기 줄이기 */
+    }
+
+    .contents-text,
+    .description {
+        font-size: 14px; /* 설명 텍스트 크기 줄이기 */
+    }
+
+    .get-started {
+        width: 100%; /* 버튼 너비를 전체로 */
+    }
+}
+
+/* 애니메이션을 위한 기본 설정 */
+.fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-in-out; /* 전환 시간 설정 */
+}
+
+.fade-in.loaded {
+    opacity: 1; /* 로드 후 불투명도 설정 */
+}
+
+/* 뒤로 가기 버튼 */
+.back-button {
+    position: absolute;
+    width: 47px;
+    height: 47px;
+    left: 21.5px;
+    top: 16.5px;
+}
+
+/* 로그인 컨테이너 */
+.login-container {
+    width: 350px;
+    height: auto; /* 자동 높이 */
+    position: relative;
+}
+
+/* 로그인 제목 */
+.login-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 38px;
+    line-height: 125%;
+    letter-spacing: -0.04em;
+    color: #323142;
+}
+
+/* 입력 필드 스타일 */
+.input-field {
+    position: relative; /* 부모 기준으로 배치 */
+    width: 100%; /* 100% 너비 */
+    margin-top: 20px; /* 입력 필드 간격 */
+}
+
+.input-field input {
+    width: 100%;
+    height: 62.31px;
+    background: #ffffff;
+    border-radius: 12.84px;
+    border: 1.5px solid #c2c3cb;
+    padding: 10px; /* 내부 여백 */
+}
+
+/* 로그인 버튼 */
+.login-button {
+    width: 100%; /* 100% 너비 */
+    height: 62.31px;
+    margin-top: 20px; /* 로그인 버튼 간격 */
+    background: #000000;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.login-button span {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+/* 계정 생성 및 비밀번호 찾기 텍스트 */
+.create-account,
+.forgot-password {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #acadb9;
+    opacity: 0.7;
+    margin-top: 20px; /* 텍스트 간격 */
+}
