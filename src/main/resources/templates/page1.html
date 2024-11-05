@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="css/styles.css" />
+        <title>Page 1</title>
+    </head>
+    <body class="fade-in">
+        <div class="container common-container">
+            <div class="wibee-logo"></div>
+            <h2 class="wibeechat-title">Welcome to</h2>
+            <h2 class="wibeechat-title">WIBEECHAT</h2>
+            <div class="description">Start chatting with ChattyAI now.</div>
+            <div class="description">You can ask me anything.</div>
+            <div class="get-started" id="getStartedButton">
+                <span>시작하기</span>
+            </div>
+        </div>
+    </body>
+    <script>
+        // 페이지가 로드된 후 fade-in 클래스 추가
+        document.body.classList.add('loaded');
+
+        // "시작하기" 버튼 클릭 시 page2.html로 이동
+        document.getElementById('getStartedButton').addEventListener('click', function () {
+            window.location.href = 'page2'; // 페이지 2로 이동
+        });
+    </script>
+</html>
