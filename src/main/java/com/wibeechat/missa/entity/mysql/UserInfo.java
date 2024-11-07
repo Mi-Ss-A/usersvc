@@ -1,4 +1,4 @@
-package com.wibeechat.missa.entity;
+package com.wibeechat.missa.entity.mysql;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "user_info")
+@Table(schema = "mydb1", name = "user_info")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -1,6 +1,6 @@
-package com.wibeechat.missa.repository;
+package com.wibeechat.missa.repository.mysql;
 
-import com.wibeechat.missa.entity.UserInfo;
+import com.wibeechat.missa.entity.mysql.UserInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
