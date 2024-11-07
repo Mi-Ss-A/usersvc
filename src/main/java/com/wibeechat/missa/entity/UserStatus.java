@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public enum UserStatus {
-    ACTIVE("A"),
-    INACTIVE("I"),
-    DELETED("D");
+    A("ACTIVE"),
+    I("INACTIVE"),
+    D("DELETED");
 
     private final String code;
 
