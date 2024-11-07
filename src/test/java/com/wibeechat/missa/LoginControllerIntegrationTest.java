@@ -52,7 +52,7 @@ class LoginControllerIntegrationTest {
         user.setUserGender(Gender.M);  // Enum 사용
         user.setUserAddress("서울시 강남구 테헤란로 123");
         user.setUserRegistrationDate(LocalDateTime.now());
-        user.setUserStatus(UserStatus.ACTIVE);  // Enum 사용
+        user.setUserStatus(UserStatus.A);  // Enum 사용
         user.setUserType("NORMA");  // 또는 상수로 정의된 사용자 타입
         // 또는
         // user.setUserNo(String.valueOf(UUID.randomUUID()));

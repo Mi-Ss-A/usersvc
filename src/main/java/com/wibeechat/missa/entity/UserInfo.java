@@ -68,7 +68,7 @@ public class UserInfo {
     @PrePersist
     public void prePersist() {
         if (this.userStatus == null) {
-            this.userStatus = UserStatus.ACTIVE;
+            this.userStatus = UserStatus.A;
         }
         if (this.userRegistrationDate == null) {
             this.userRegistrationDate = LocalDateTime.now();
