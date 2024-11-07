@@ -7,14 +7,18 @@ import com.wibeechat.missa.dto.login.LoginResponse;
 import com.wibeechat.missa.exception.InvalidPasswordException;
 import com.wibeechat.missa.exception.UserNotFoundException;
 import com.wibeechat.missa.service.user.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -38,7 +42,7 @@ class LoginControllerTest {
 		// given
 		LoginRequest request = new LoginRequest("hongminyeong", "1234");
 		LoginResponse expectedResponse = LoginResponse.success(
-				"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+				"ec30ee0d-c663-42aa-bf81-448e2d4f50c2"
 		);
 
 		given(userService.login(any(LoginRequest.class)))
@@ -49,28 +53,34 @@ class LoginControllerTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.isSuccess").value(true))
-				.andExpect(jsonPath("$.code").value(200))
-				.andExpect(jsonPath("$.userNo").value(expectedResponse.getUserNo()))
+				.andExpect(result -> {
+					HttpSession session = result.getRequest().getSession();
+					assertNotNull(session.getAttribute("userId"));
+					assertEquals("ec30ee0d-c663-42aa-bf81-448e2d4f50c2", session.getAttribute("userId"));
+				})
 				.andDo(print());
 	}
 
 	@Test
-	@DisplayName("유효하지 않은 사용자로 로그인 시도 테스트")
-	void loginFailUserNotFound() throws Exception {
+	@DisplayName("로그인 실패 시 세션이 생성되지 않아야 한다")
+	void loginFail() throws Exception {
 		// given
-		LoginRequest request = new LoginRequest("unknown", "1234");
-		given(userService.login(any(LoginRequest.class)))
-				.willThrow(new UserNotFoundException());
+		LoginRequest loginRequest = new LoginRequest("test@email.com", "wrong_password");
+		LoginResponse loginResponse = LoginResponse.builder()
+				.isSuccess(false)
+				.build();
+
+		given(userService.login(any(LoginRequest.class))).willReturn(loginResponse);
 
 		// when & then
 		mockMvc.perform(post("/api/users/login")
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(request)))
-				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.isSuccess").value(false))
-				.andExpect(jsonPath("$.code").value(404))
-				.andExpect(jsonPath("$.message").value("User Not Found"))
+						.content(new ObjectMapper().writeValueAsString(loginRequest)))
+				.andExpect(status().isOk())
+				.andExpect(result -> {
+					HttpSession session = result.getRequest().getSession(false);
+					assertTrue(session == null || session.getAttribute("userId") == null);
+				})
 				.andDo(print());
 	}
 
@@ -106,4 +116,45 @@ class LoginControllerTest {
 				.andExpect(status().isBadRequest())
 				.andDo(print());
 	}
+
+	@Test
+	@DisplayName("세션이 있을 때 세션 체크가 성공해야 한다")
+	void checkSessionSuccess() throws Exception {
+		// when & then
+		mockMvc.perform(get("/api/users/check-session")
+						.sessionAttr("userId", "ec30ee0d-c663-42aa-bf81-448e2d4f50c2"))  // 세션 속성 설정
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("현재 로그인된 사용자: ec30ee0d-c663-42aa-bf81-448e2d4f50c2")))
+				.andDo(print());
+	}
+
+	@Test
+	@DisplayName("세션이 없을 때 세션 체크가 실패해야 한다")
+	void checkSessionFail() throws Exception {
+		// when & then
+		mockMvc.perform(get("/api/users/check-session"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(content().string("세션이 만료되었습니다."))
+				.andDo(print());
+	}
+
+	@Test
+	@DisplayName("로그아웃 시 세션이 무효화되어야 한다")
+	void logout() throws Exception {
+		// given
+		MockHttpSession session = new MockHttpSession();
+		session.setAttribute("userId", "ec30ee0d-c663-42aa-bf81-448e2d4f50c2");
+
+		// when & then
+		mockMvc.perform(post("/api/users/logout")
+						.session(session))
+				.andExpect(status().isOk())
+				.andExpect(content().string("로그아웃 되었습니다."))
+				.andExpect(result -> {
+					HttpSession resultSession = result.getRequest().getSession(false);
+					assertNull(resultSession);  // 세션이 무효화되었는지 확인
+				})
+				.andDo(print());
+	}
+
 }
