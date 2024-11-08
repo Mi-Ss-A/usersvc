@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,5 +42,15 @@ public class ChatService {
         ChatMessage savedMessage = chatMessageRepository.save(message);
 
         return ChatSaveResponse.from(savedMessage);
+    }
+
+
+    @Transactional
+    public List<LocalDate> getDistinctDates(String userNo) {
+        return chatMessageRepository.findByUserNoOrderByMessage_TimestampDesc(userNo)
+                .stream()
+                .map(chatMessage -> chatMessage.getMessage().getTimestamp().toLocalDate())
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

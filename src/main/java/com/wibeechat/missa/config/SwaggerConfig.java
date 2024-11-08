@@ -28,8 +28,12 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .components(new Components()
-                        .addSecuritySchemes("cookieAuth", cookieAuth))
-                .addSecurityItem(new SecurityRequirement().addList("cookieAuth"));
+                        .addSecuritySchemes("Session",
+                        new SecurityScheme()
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.COOKIE)
+                                .name("JSESSIONID")))
+                .addSecurityItem(new SecurityRequirement().addList("Session"));
     }
 
     // Swagger UI가 세션 쿠키를 유지하도록 설정
