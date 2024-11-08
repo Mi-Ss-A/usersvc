@@ -1,4 +1,4 @@
-package com.wibeechat.missa;
+package com.wibeechat.missa.userlogin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wibeechat.missa.controller.user.LoginController;

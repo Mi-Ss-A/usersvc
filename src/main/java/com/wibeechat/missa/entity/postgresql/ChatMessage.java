@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
-@Table(schema = "mydb2",name = "chat_messages")
+@Table(schema = "mydb2", name = "chat_messages")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -18,21 +19,19 @@ public class ChatMessage {
     private Long id;
 
     @Column(name = "user_no")
-    private Long userNo;
-
-    @Column(name = "user_question")
-    private String userQuestion;
-
-    @Column(name = "ai_answer")
-    private String aiAnswer;
-
-    @Column(name = "send_time")
-    private LocalDateTime sendTime;
+    private String userNo;
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "questionLength", column = @Column(name = "question_length")),
-            @AttributeOverride(name = "answerLength", column = @Column(name = "answer_length")),
+            @AttributeOverride(name = "sender", column = @Column(name = "message_sender")),
+            @AttributeOverride(name = "content", column = @Column(name = "message_content")),
+            @AttributeOverride(name = "timestamp", column = @Column(name = "message_timestamp"))
+    })
+    private Message message;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "messageLength", column = @Column(name = "message_length")),
             @AttributeOverride(name = "processingTime", column = @Column(name = "processing_time"))
     })
     private MessageMetadata metadata;
@@ -43,19 +42,20 @@ public class ChatMessage {
             @AttributeOverride(name = "errorMessage", column = @Column(name = "error_message"))
     })
     private MessageStatus status;
+    @PrePersist
+    protected void onCreate() {
+        if (message != null) {
+            message.setTimestamp(LocalDateTime.now());
 
-    @Data
-    @Embeddable
-    public static class MessageMetadata {
-        private Integer questionLength;
-        private Integer answerLength;
-        private Long processingTime;
-    }
+            if (message.getContent() != null) {
+                metadata = MessageMetadata.builder()
+                        .messageLength(message.getContent().length())
+                        .build();
+            }
 
-    @Data
-    @Embeddable
-    public static class MessageStatus {
-        private boolean isProcessed;
-        private String errorMessage;
+            status = MessageStatus.builder()
+                    .isProcessed(message.getSender() == SenderType.AI)
+                    .build();
+        }
     }
 }
