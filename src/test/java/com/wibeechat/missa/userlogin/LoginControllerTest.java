@@ -1,4 +1,4 @@
-package com.wibeechat.missa;
+package com.wibeechat.missa.userlogin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wibeechat.missa.controller.user.LoginController;
@@ -55,7 +55,8 @@ class LoginControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(result -> {
 					HttpSession session = result.getRequest().getSession();
-					assertNotNull(session.getAttribute("userId"));
+                    assert session != null;
+                    assertNotNull(session.getAttribute("userId"));
 					assertEquals("ec30ee0d-c663-42aa-bf81-448e2d4f50c2", session.getAttribute("userId"));
 				})
 				.andDo(print());

@@ -1,12 +1,12 @@
-package com.wibeechat.missa;
+package com.wibeechat.missa.userlogin;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wibeechat.missa.dto.login.LoginRequest;
-import com.wibeechat.missa.entity.Gender;
-import com.wibeechat.missa.entity.UserInfo;
-import com.wibeechat.missa.entity.UserStatus;
-import com.wibeechat.missa.repository.UserInfoRepository;
+import com.wibeechat.missa.entity.mysql.Gender;
+import com.wibeechat.missa.entity.mysql.UserInfo;
+import com.wibeechat.missa.entity.mysql.UserStatus;
+import com.wibeechat.missa.repository.mysql.UserInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

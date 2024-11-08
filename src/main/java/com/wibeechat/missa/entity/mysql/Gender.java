@@ -1,4 +1,4 @@
-package com.wibeechat.missa.entity;
+package com.wibeechat.missa.entity.mysql;
 
 
 import lombok.Getter;

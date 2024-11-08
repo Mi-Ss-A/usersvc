@@ -5,22 +5,17 @@ import com.wibeechat.missa.annotation.LoginRequired;
 import com.wibeechat.missa.component.SessionManager;
 import com.wibeechat.missa.dto.login.LoginRequest;
 import com.wibeechat.missa.dto.login.LoginResponse;
-import com.wibeechat.missa.entity.UserInfo;
+import com.wibeechat.missa.entity.mysql.UserInfo;
 import com.wibeechat.missa.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpRequest;
 @Slf4j
 @RestController
 @RequestMapping("/api/users")
