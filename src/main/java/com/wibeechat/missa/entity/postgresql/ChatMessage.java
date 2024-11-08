@@ -1,5 +1,6 @@
 package com.wibeechat.missa.entity.postgresql;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,22 @@ public class ChatMessage {
     })
     private Message message;
 
+    @Embeddable
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Message {
+        @Enumerated(EnumType.STRING)
+        private SenderType sender;
+        private String content;
+        private LocalDateTime timestamp;
+    }
+    
+    public enum SenderType {
+        USER, AI
+    }
+    
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "messageLength", column = @Column(name = "message_length")),
@@ -36,16 +53,37 @@ public class ChatMessage {
     })
     private MessageMetadata metadata;
 
+    @Data
+    @Embeddable
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MessageMetadata {
+        private Integer messageLength;
+        private Long processingTime;
+    }
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "isProcessed", column = @Column(name = "is_processed")),
             @AttributeOverride(name = "errorMessage", column = @Column(name = "error_message"))
     })
     private MessageStatus status;
+    
+    @Data
+    @Embeddable
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MessageStatus {
+        private boolean isProcessed;
+        private String errorMessage;
+    }
+
     @PrePersist
     protected void onCreate() {
         if (message != null) {
-            message.setTimestamp(LocalDateTime.now());
+            message.timestamp = LocalDateTime.now();
 
             if (message.getContent() != null) {
                 metadata = MessageMetadata.builder()

@@ -1,93 +1,111 @@
 package com.wibeechat.missa.userhistory;
 
-import com.wibeechat.missa.entity.postgresql.*;
-import com.wibeechat.missa.repository.postgres.ChatMessageRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDateTime;
-
-
-import com.wibeechat.missa.entity.postgresql.ChatMessage;
-import com.wibeechat.missa.entity.postgresql.ChatMessage.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wibeechat.missa.controller.history.HistoryController;
+import com.wibeechat.missa.dto.history.ChatSaveRequest;
+import com.wibeechat.missa.dto.history.ChatSaveResponse;
+import com.wibeechat.missa.service.history.ChatService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-public class UserHistoryControllerTest {
+@WebMvcTest(HistoryController.class)
+class UserHistoryControllerTest {
 
     @Autowired
-    private ChatMessageRepository chatMessageRepository;  // Repository 주입
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private ChatService chatService;
 
     @Test
-    @DisplayName("채팅 메시지 생성 및 저장 테스트")
-    public void createAndSaveChatMessageTest() {
+    @DisplayName("메시지 저장 성공 테스트")
+    void saveMessageSuccess() throws Exception {
         // Given
-        String userNo = "ec30ee0d-c663-42aa-bf81-448e2d4f50c2";
-        String userQuestion = "사용자 질문";
-        String aiResponse = "AI 응답";
+        String userNo = "123";
+        String content = "테스트 메시지";
+        String sender = "USER";
 
-        // When - 사용자 메시지 생성 및 저장
-        ChatMessage userMessage = ChatMessage.builder()
-                .userNo(userNo)
-                .message(Message.builder()
-                        .sender(SenderType.USER)
-                        .content(userQuestion)
-                        .timestamp(LocalDateTime.now())
-                        .build())
-                .metadata(MessageMetadata.builder()
-                        .messageLength(userQuestion.length())
-                        .build())
-                .status(MessageStatus.builder()
-                        .isProcessed(false)
-                        .build())
+        ChatSaveRequest request = ChatSaveRequest.builder()
+                .content(content)
+                .sender(sender)
                 .build();
 
-        ChatMessage savedUserMessage = chatMessageRepository.save(userMessage);
-
-        // Then - 사용자 메시지 검증
-        assertThat(savedUserMessage).isNotNull();
-        assertThat(savedUserMessage.getId()).isNotNull();  // ID가 생성되었는지 확인
-        assertThat(savedUserMessage.getUserNo()).isEqualTo(userNo);
-        assertThat(savedUserMessage.getMessage().getSender()).isEqualTo(SenderType.USER);
-        assertThat(savedUserMessage.getMessage().getContent()).isEqualTo(userQuestion);
-        assertThat(savedUserMessage.getMessage().getTimestamp()).isNotNull();
-
-        // When - AI 메시지 생성 및 저장
-        ChatMessage aiMessage = ChatMessage.builder()
-                .userNo(userNo)
-                .message(Message.builder()
-                        .sender(SenderType.AI)
-                        .content(aiResponse)
-                        .timestamp(LocalDateTime.now())
-                        .build())
-                .metadata(MessageMetadata.builder()
-                        .messageLength(aiResponse.length())
-                        .build())
-                .status(MessageStatus.builder()
-                        .isProcessed(true)
-                        .build())
+        ChatSaveResponse response = ChatSaveResponse.builder()
+                .id(1L)
+                .content(content)
+                .sender(sender)
+                .timestamp(LocalDateTime.now())
+                .isProcessed(false)
                 .build();
 
-        ChatMessage savedAiMessage = chatMessageRepository.save(aiMessage);
+        given(chatService.saveMessage(eq(userNo), any(ChatSaveRequest.class)))
+                .willReturn(response);
 
-        // Then - AI 메시지 검증
-        assertThat(savedAiMessage).isNotNull();
-        assertThat(savedAiMessage.getId()).isNotNull();
-        assertThat(savedAiMessage.getUserNo()).isEqualTo(userNo);
-        assertThat(savedAiMessage.getMessage().getSender()).isEqualTo(SenderType.AI);
-        assertThat(savedAiMessage.getMessage().getContent()).isEqualTo(aiResponse);
-        assertThat(savedAiMessage.getMessage().getTimestamp()).isNotNull();
+        // When & Then
+        mockMvc.perform(post("/api/history")
+                        .header("Session-ID", userNo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.content").value(content))
+                .andExpect(jsonPath("$.sender").value(sender));
 
-        // DB에서 조회하여 실제 저장 여부 확인
-        List<ChatMessage> savedMessages = chatMessageRepository.findByUserNo(userNo);
-        assertThat(savedMessages).hasSize(2);
+        verify(chatService).saveMessage(eq(userNo), any(ChatSaveRequest.class));
+    }
+
+    @Test
+    @DisplayName("Session-ID 헤더 누락 시 실패 테스트")
+    void saveMessageWithoutSessionId() throws Exception {
+        // Given
+        ChatSaveRequest request = ChatSaveRequest.builder()
+                .content("테스트 메시지")
+                .sender("USER")
+                .build();
+
+        // When & Then
+        mockMvc.perform(post("/api/history")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("잘못된 형식의 요청 데이터 테스트")
+    void saveMessageWithInvalidRequest() throws Exception {
+        // Given
+        String userNo = "123";
+        ChatSaveRequest request = ChatSaveRequest.builder()
+                .content("")  // 빈 내용
+                .sender("INVALID_SENDER")  // 잘못된 발신자 타입
+                .build();
+
+        // When & Then
+        mockMvc.perform(post("/api/history")
+                        .header("Session-ID", userNo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
