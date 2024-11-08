@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -65,6 +67,26 @@ public class HistoryController {
     )
     public ResponseEntity<List<LocalDate>> getChatHistoryDates(@CurrentUser String userNo) {
         List<LocalDate> messages = chatService.getDistinctDates(userNo);
+        return ResponseEntity.ok(messages);
+    }
+
+    @GetMapping
+    @LoginRequired
+    @Operation(
+            summary = "채팅 메시지 보기",
+            description = "채팅 메시지를 가져옵니다"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "일자에 따른 메시지 불러오기 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ChatSaveResponse.class)
+            )
+    )
+    public ResponseEntity<List<ChatMessage>> getChatHistory(@CurrentUser String userNo, String date) {
+        // String을 LocalDate로 변환
+        List<ChatMessage> messages = chatService.getChatMessagesByDate(userNo, date);
         return ResponseEntity.ok(messages);
     }
 }
