@@ -28,28 +28,6 @@ public class HistoryController {
 
     private final ChatService chatService;
 
-
-    @PostMapping
-    @LoginRequired
-    @Operation(
-            summary = "채팅 메시지 저장",
-            description = "새로운 채팅 메시지를 저장합니다."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "메시지 저장 성공",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ChatSaveResponse.class)
-            )
-    )
-    public ResponseEntity<ChatSaveResponse> saveMessage(
-            @CurrentUser String userId,  // 세션에서 자동으로 userId를 가져옴
-            @RequestBody ChatSaveRequest request
-    ) {
-        return ResponseEntity.ok(chatService.saveMessage(userId, request));
-    }
-
     @GetMapping("/dates")
     @LoginRequired
     @Operation(
