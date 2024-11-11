@@ -3,6 +3,7 @@ package com.wibeechat.missa.controller.user;
 import com.wibeechat.missa.annotation.CurrentUser;
 import com.wibeechat.missa.annotation.LoginRequired;
 import com.wibeechat.missa.component.SessionManager;
+import com.wibeechat.missa.config.RedisSessionListener;
 import com.wibeechat.missa.dto.login.LoginRequest;
 import com.wibeechat.missa.dto.login.LoginResponse;
 import com.wibeechat.missa.entity.mysql.UserInfo;
@@ -13,58 +14,49 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hibernate.query.sqm.tree.SqmNode.log;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class LoginController {
-
     private final UserService userService;
-    private final SessionManager sessionManager;
+    private final RedisSessionListener redisSessionListener;
 
-    @Operation(summary = "로그인", description = "아이디와 비밀번호로 로그인합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "로그인 성공"),
-            @ApiResponse(responseCode = "404", description = "없는 사용자")
-    })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpSession session) {
         LoginResponse response = userService.login(request);
 
         if (response.isSuccess()) {
-            session.setAttribute("userId", response.getUserNo());
-            sessionManager.addSession(session);
+            String userId = response.getUserNo();
+            session.setAttribute("userId", userId);
         }
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "세션 확인", description = "현재 로그인된 세션을 확인합니다.")
-    @ApiResponse(responseCode = "200", description = "세션 확인 성공")
-    @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
-    @LoginRequired
-    @GetMapping("/check-session")
-    public ResponseEntity<String> checkSession(HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        return ResponseEntity.ok("현재 로그인된 사용자: " + userId);
-    }
-
-
-    @Operation(summary = "로그아웃", description = "현재 세션을 종료합니다.")
-    @ApiResponse(responseCode = "200", description = "로그아웃 성공")
-    @LoginRequired
     @PostMapping("/logout")
+    @LoginRequired
     public ResponseEntity<String> logout(HttpSession session) {
-        sessionManager.removeSession(session.getId());
-        return ResponseEntity.ok("로그아웃 되었습니다.");
+        String userId = (String) session.getAttribute("userId");
+        if (userId != null) {
+            session.invalidate();  // 세션 무효화하면 sessionDestroyed 이벤트 발생
+            return ResponseEntity.ok("로그아웃 되었습니다.");
+        }
+        return ResponseEntity.badRequest().body("세션이 존재하지 않습니다.");
     }
 
-    @LoginRequired
-    @GetMapping("/profile")
-    public ResponseEntity<UserInfo> getProfile(@CurrentUser String userId) {
-        UserInfo userInfo = userService.getUserInfo(userId);
-        return ResponseEntity.ok(userInfo);
+    @GetMapping("/check-session")
+    public ResponseEntity<Map<String, Object>> checkSession(@CurrentUser String userId) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", userId);
+        response.put("isValid", redisSessionListener.isValidSession(userId));
+        return ResponseEntity.ok(response);
     }
 }

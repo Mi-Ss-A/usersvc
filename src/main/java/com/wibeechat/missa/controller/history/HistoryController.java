@@ -2,7 +2,6 @@ package com.wibeechat.missa.controller.history;
 
 import com.wibeechat.missa.annotation.CurrentUser;
 import com.wibeechat.missa.annotation.LoginRequired;
-import com.wibeechat.missa.dto.history.ChatHistoryResponse;
 import com.wibeechat.missa.dto.history.ChatSaveRequest;
 import com.wibeechat.missa.dto.history.ChatSaveResponse;
 import com.wibeechat.missa.entity.postgresql.ChatMessage;
