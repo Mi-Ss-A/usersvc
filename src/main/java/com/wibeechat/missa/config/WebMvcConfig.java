@@ -17,7 +17,7 @@ import java.util.List;
 public class WebMvcConfig implements WebMvcConfigurer {
 
 
-    @Value("${cors.allowed-origins}")
+    @Value("${spring.web.cors.allowed-origins}")
     private String[] allowedOrigins;
 
     @Autowired
