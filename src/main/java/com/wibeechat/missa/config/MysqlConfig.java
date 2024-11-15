@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.wibeechat.missa.repository.mysql",
+        basePackages = "com.wibeechat.missa.repository.mysql", // Oracle repository 패키지 경로
         entityManagerFactoryRef = "db1EntityMgrFactory",
         transactionManagerRef = "db1TransactionMgr"
 )
@@ -30,7 +30,7 @@ public class MysqlConfig {
     @Primary
     @Bean(name = "datasource1")
     @ConfigurationProperties(prefix = "spring.db1.datasource")
-    public DataSource mysqlDataSource() {
+    public DataSource oracleDataSource() {
         return DataSourceBuilder.create().build();
     }
 
@@ -42,13 +42,13 @@ public class MysqlConfig {
     ) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", "update");
-        // CamelCase를 snake_case로 자동 변환하는 기본 네이밍 전략 사용
+        properties.put("hibernate.dialect", "org.hibernate.dialect.OracleDialect");
         properties.put("hibernate.physical_naming_strategy",
                 "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
 
         return builder
                 .dataSource(dataSource)
-                .packages("com.wibeechat.missa.entity.mysql")
+                .packages("com.wibeechat.missa.entity.mysql") // Oracle 엔터티 패키지 경로
                 .persistenceUnit("db1")
                 .properties(properties)
                 .build();

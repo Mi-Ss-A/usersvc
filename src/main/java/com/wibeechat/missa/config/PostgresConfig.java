@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.wibeechat.missa.repository.postgres",
+        basePackages = "com.wibeechat.missa.repository.postgres", // PostgreSQL repository 패키지 경로
         entityManagerFactoryRef = "db2EntityMgrFactory",
         transactionManagerRef = "db2TransactionMgr"
 )
@@ -38,17 +38,12 @@ public class PostgresConfig {
             @Qualifier("datasource2") DataSource dataSource
     ) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        properties.put("hibernate.default_schema", "mydb2");
         properties.put("hibernate.hbm2ddl.auto", "update");
-        properties.put("hibernate.physical_naming_strategy",
-                "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
-        // 스키마 자동 생성 설정
-        properties.put("hibernate.connection.init_sql", "CREATE SCHEMA IF NOT EXISTS mydb2");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
 
         return builder
                 .dataSource(dataSource)
-                .packages("com.wibeechat.missa.entity.postgresql")
+                .packages("com.wibeechat.missa.entity.postgresql") // PostgreSQL 엔터티 패키지 경로
                 .persistenceUnit("db2")
                 .properties(properties)
                 .build();
