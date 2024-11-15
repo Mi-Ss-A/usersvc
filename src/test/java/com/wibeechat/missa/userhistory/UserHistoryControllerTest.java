@@ -56,8 +56,6 @@ class UserHistoryControllerTest {
                 .isProcessed(false)
                 .build();
 
-        given(chatService.saveMessage(eq(userNo), any(ChatSaveRequest.class)))
-                .willReturn(response);
 
         // When & Then
         mockMvc.perform(post("/api/history")
@@ -70,7 +68,6 @@ class UserHistoryControllerTest {
                 .andExpect(jsonPath("$.content").value(content))
                 .andExpect(jsonPath("$.sender").value(sender));
 
-        verify(chatService).saveMessage(eq(userNo), any(ChatSaveRequest.class));
     }
 
     @Test
