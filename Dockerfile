@@ -7,7 +7,7 @@ RUN gradle clean build -x test
 # 2. 실행 이미지 (최종 배포 단계)
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/build/libs/missa-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8081
 
