@@ -7,14 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class RedisSessionListener implements HttpSessionListener {
-
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String USER_SESSION_PREFIX = "user:session:";
     private static final String SESSION_USER_PREFIX = "session:user:";
+    private static final int SESSION_TIMEOUT = 30 * 60; // 30분
 
     @Override
     public void sessionCreated(HttpSessionEvent se) {
@@ -24,9 +26,9 @@ public class RedisSessionListener implements HttpSessionListener {
 
         if (userId != null) {
             // userId로 sessionId 찾을 수 있도록 저장
-            redisTemplate.opsForValue().set(USER_SESSION_PREFIX + userId, sessionId);
+            redisTemplate.opsForValue().set(USER_SESSION_PREFIX + userId, sessionId, SESSION_TIMEOUT, TimeUnit.SECONDS);
             // sessionId로 userId 찾을 수 있도록 저장
-            redisTemplate.opsForValue().set(SESSION_USER_PREFIX + sessionId, userId);
+            redisTemplate.opsForValue().set(SESSION_USER_PREFIX + sessionId, userId, SESSION_TIMEOUT, TimeUnit.SECONDS);
             log.info("Redis에 세션-사용자 매핑 저장 완료");
         }
     }
@@ -42,11 +44,7 @@ public class RedisSessionListener implements HttpSessionListener {
 
             if (userId != null) {
                 // 세션 관련 데이터 모두 삭제
-                redisTemplate.delete(USER_SESSION_PREFIX + userId);
-                redisTemplate.delete(SESSION_USER_PREFIX + sessionId);
-                redisTemplate.delete("spring:session:sessions:" + sessionId);
-                redisTemplate.delete("spring:session:sessions:expires:" + sessionId);
-
+                deleteSessionData(userId, sessionId);
                 log.info("Redis 세션 데이터 삭제 완료 - SessionId: {}, UserId: {}", sessionId, userId);
             }
         } catch (Exception e) {
@@ -54,10 +52,18 @@ public class RedisSessionListener implements HttpSessionListener {
         }
     }
 
-    // 세션 유효성 확인 메서드 추가
+    private void deleteSessionData(String userId, String sessionId) {
+        redisTemplate.delete(USER_SESSION_PREFIX + userId);
+        redisTemplate.delete(SESSION_USER_PREFIX + sessionId);
+        redisTemplate.delete("spring:session:sessions:" + sessionId);
+        redisTemplate.delete("spring:session:sessions:expires:" + sessionId);
+    }
+
     public boolean isValidSession(String userId) {
         String sessionId = (String) redisTemplate.opsForValue().get(USER_SESSION_PREFIX + userId);
-        return sessionId != null &&
-                redisTemplate.hasKey("spring:session:sessions:" + sessionId);
+        if (sessionId == null) {
+            return false;
+        }
+        return redisTemplate.hasKey("spring:session:sessions:" + sessionId);
     }
 }
