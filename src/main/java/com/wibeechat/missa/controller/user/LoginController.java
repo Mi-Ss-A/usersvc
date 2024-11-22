@@ -42,6 +42,7 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
+    @LoginRequired
     public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         String userId = (String) session.getAttribute("userId");
