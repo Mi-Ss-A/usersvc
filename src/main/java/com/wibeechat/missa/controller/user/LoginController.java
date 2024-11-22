@@ -42,7 +42,6 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    @LoginRequired
     public ResponseEntity<String> logout(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId != null) {
