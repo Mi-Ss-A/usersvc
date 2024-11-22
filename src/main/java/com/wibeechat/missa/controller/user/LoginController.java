@@ -42,13 +42,18 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
         String userId = (String) session.getAttribute("userId");
         if (userId != null) {
-            session.invalidate();  // 세션 무효화하면 sessionDestroyed 이벤트 발생
-            return ResponseEntity.ok("로그아웃 되었습니다.");
+            session.invalidate();
+            response.put("success", true);
+            response.put("message", "로그아웃 되었습니다.");
+            return ResponseEntity.ok(response);
         }
-        return ResponseEntity.badRequest().body("세션이 존재하지 않습니다.");
+        response.put("success", false);
+        response.put("message", "세션이 존재하지 않습니다.");
+        return ResponseEntity.badRequest().body(response);
     }
 
     @GetMapping("/check-session")
