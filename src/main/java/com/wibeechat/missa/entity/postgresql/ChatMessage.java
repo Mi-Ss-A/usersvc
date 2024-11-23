@@ -1,11 +1,25 @@
 package com.wibeechat.missa.entity.postgresql;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(schema = "mydb2", name = "chat_messages")
@@ -41,11 +55,11 @@ public class ChatMessage {
         private String content;
         private LocalDateTime timestamp;
     }
-    
+
     public enum SenderType {
         USER, AI
     }
-    
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "messageLength", column = @Column(name = "message_length")),
@@ -69,7 +83,7 @@ public class ChatMessage {
             @AttributeOverride(name = "errorMessage", column = @Column(name = "error_message"))
     })
     private MessageStatus status;
-    
+
     @Data
     @Embeddable
     @Builder
