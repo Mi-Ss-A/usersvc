@@ -9,7 +9,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @Configuration
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800, redisNamespace = "wibee:session") // 30분
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800) // 30분
 public class SessionConfig {
 
     @Bean
