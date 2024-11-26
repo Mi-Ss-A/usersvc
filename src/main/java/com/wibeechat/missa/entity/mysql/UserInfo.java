@@ -1,12 +1,20 @@
 package com.wibeechat.missa.entity.mysql;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "user_info")
@@ -55,15 +63,6 @@ public class UserInfo {
 
     @Column(name = "user_type", length = 5, nullable = false)
     private String userType;
-
-    @OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
-    private List<BankAccountInfo> bankAccounts = new ArrayList<>();
-
-    // 연관관계 편의 메서드
-    public void addBankAccount(BankAccountInfo bankAccount) {
-        this.bankAccounts.add(bankAccount);
-        bankAccount.setUserInfo(this);
-    }
 
     @PrePersist
     public void prePersist() {

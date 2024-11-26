@@ -1,22 +1,19 @@
 package com.wibeechat.missa.service.history;
 
-
-import com.wibeechat.missa.dto.history.ChatSaveRequest;
-import com.wibeechat.missa.dto.history.ChatSaveResponse;
-import com.wibeechat.missa.entity.postgresql.ChatMessage;
-import com.wibeechat.missa.repository.postgres.ChatMessageRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.wibeechat.missa.entity.postgresql.ChatMessage;
+import com.wibeechat.missa.repository.postgres.ChatMessageRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -24,7 +21,6 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
-
 
     @Transactional
     public List<LocalDate> getDistinctDates(String userNo) {
@@ -44,7 +40,6 @@ public class ChatService {
         return chatMessageRepository.findByUserNoAndMessage_TimestampBetweenOrderByMessage_TimestampAsc(
                 userNo,
                 startOfDay,
-                endOfDay
-        );
+                endOfDay);
     }
 }

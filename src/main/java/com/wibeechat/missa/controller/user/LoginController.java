@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
     private final UserService userService;
     private final RedisSessionListener redisSessionListener;
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpSession session) {
         LoginResponse response = userService.login(request);
