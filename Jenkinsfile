@@ -31,27 +31,21 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # 현재 이미지와 직전 버전 제외하고 삭제
+                    # 현재 빌드된 이미지와 직전 버전 태그 계산
                     IMAGE_NAME="${IMAGE_NAME}"
-                    KEEP_TAGS=("${TAG}" "test-$(( ${BUILD_NUMBER} - 1 ))")
-                    
-                    echo "현재 유지할 이미지 태그: ${KEEP_TAGS[@]}"
+                    CURRENT_TAG="${TAG}"
+                    PREVIOUS_TAG="test-$(( ${BUILD_NUMBER} - 1 ))"
 
-                    # 이미지 목록 가져오기
-                    ALL_IMAGES=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep "$IMAGE_NAME")
+                    echo "현재 유지할 이미지 태그: ${CURRENT_TAG}, ${PREVIOUS_TAG}"
 
-                    for IMAGE in $ALL_IMAGES; do
-                        DELETE=true
-                        for KEEP_TAG in "${KEEP_TAGS[@]}"; do
-                            if [[ $IMAGE == *:$KEEP_TAG ]]; then
-                                DELETE=false
-                                break
-                            fi
-                        done
-                        
-                        if $DELETE; then
+                    # 모든 이미지 목록 가져오기
+                    docker images --format '{{.Repository}}:{{.Tag}}' | grep "$IMAGE_NAME" | while read -r IMAGE; do
+                        # 유지할 태그인지 확인
+                        if [[ "$IMAGE" == *:$CURRENT_TAG || "$IMAGE" == *:$PREVIOUS_TAG ]]; then
+                            echo "유지할 이미지: $IMAGE"
+                        else
                             echo "삭제할 이미지: $IMAGE"
-                            docker rmi -f $IMAGE || echo "이미지 삭제 실패: $IMAGE"
+                            docker rmi -f "$IMAGE" || echo "이미지 삭제 실패: $IMAGE"
                         fi
                     done
                     '''
