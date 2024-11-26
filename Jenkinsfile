@@ -40,8 +40,8 @@ pipeline {
 
                     # 모든 이미지 목록 가져오기
                     docker images --format '{{.Repository}}:{{.Tag}}' | grep "$IMAGE_NAME" | while read -r IMAGE; do
-                        # 유지할 태그인지 확인
-                        if [[ "$IMAGE" == *:$CURRENT_TAG || "$IMAGE" == *:$PREVIOUS_TAG ]]; then
+                        # 유지할 태그인지 확인 (POSIX 호환 방식으로 수정)
+                        if [ "$IMAGE" = "${IMAGE_NAME}:${CURRENT_TAG}" ] || [ "$IMAGE" = "${IMAGE_NAME}:${PREVIOUS_TAG}" ]; then
                             echo "유지할 이미지: $IMAGE"
                         else
                             echo "삭제할 이미지: $IMAGE"
