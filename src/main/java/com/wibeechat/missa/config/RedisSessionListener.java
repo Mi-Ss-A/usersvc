@@ -1,5 +1,6 @@
 package com.wibeechat.missa.config;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import lombok.RequiredArgsConstructor;
@@ -12,30 +13,22 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class RedisSessionListener implements HttpSessionListener {
+public class RedisSessionListener{
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String USER_SESSION_PREFIX = "user:session:";
     private static final String SESSION_USER_PREFIX = "session:user:";
     private static final int SESSION_TIMEOUT = 30 * 60; // 30분
 
-    @Override
-    public void sessionCreated(HttpSessionEvent se) {
-        String sessionId = se.getSession().getId();
-        String userId = (String) se.getSession().getAttribute("userId");
-        log.info("세션 생성 - SessionId: {}, UserId: {}", sessionId, userId);
-
+    public void sessionCreated(String sessionId, String userId) {
         if (userId != null) {
             // userId로 sessionId 찾을 수 있도록 저장
             redisTemplate.opsForValue().set(USER_SESSION_PREFIX + userId, sessionId, SESSION_TIMEOUT, TimeUnit.SECONDS);
-            // sessionId로 userId 찾을 수 있도록 저장
             redisTemplate.opsForValue().set(SESSION_USER_PREFIX + sessionId, userId, SESSION_TIMEOUT, TimeUnit.SECONDS);
             log.info("Redis에 세션-사용자 매핑 저장 완료");
         }
     }
 
-    @Override
-    public void sessionDestroyed(HttpSessionEvent se) {
-        String sessionId = se.getSession().getId();
+    public void sessionDestroyed(String sessionId) {
         log.info("세션 종료: {}", sessionId);
 
         try {
@@ -55,8 +48,6 @@ public class RedisSessionListener implements HttpSessionListener {
     private void deleteSessionData(String userId, String sessionId) {
         redisTemplate.delete(USER_SESSION_PREFIX + userId);
         redisTemplate.delete(SESSION_USER_PREFIX + sessionId);
-        redisTemplate.delete("spring:session:sessions:" + sessionId);
-        redisTemplate.delete("spring:session:sessions:expires:" + sessionId);
     }
 
     public boolean isValidSession(String userId) {
@@ -64,6 +55,6 @@ public class RedisSessionListener implements HttpSessionListener {
         if (sessionId == null) {
             return false;
         }
-        return redisTemplate.hasKey("spring:session:sessions:" + sessionId);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(SESSION_USER_PREFIX + sessionId));
     }
 }
