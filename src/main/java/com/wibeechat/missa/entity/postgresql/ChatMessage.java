@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(schema = "mydb2", name = "chat_messages")
+@Table(schema = "wibee", name = "chat_messages")
 @Getter
 @Builder
 @NoArgsConstructor
