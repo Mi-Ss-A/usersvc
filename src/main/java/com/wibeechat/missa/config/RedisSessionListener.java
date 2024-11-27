@@ -52,7 +52,6 @@ public class RedisSessionListener {
             log.error("Redis 검증 오류: {}", e.getMessage());
             return false;
         }
-        return Boolean.TRUE.equals(redisTemplate.hasKey(SESSION_USER_PREFIX + sessionId));
     }
 
     public void refreshSessionTTL(String userId) {
