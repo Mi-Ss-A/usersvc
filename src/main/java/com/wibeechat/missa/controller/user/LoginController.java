@@ -1,21 +1,24 @@
 package com.wibeechat.missa.controller.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.wibeechat.missa.annotation.CurrentUser;
 import com.wibeechat.missa.annotation.LoginRequired;
 import com.wibeechat.missa.config.RedisSessionListener;
 import com.wibeechat.missa.dto.login.LoginRequest;
 import com.wibeechat.missa.dto.login.LoginResponse;
 import com.wibeechat.missa.service.user.UserService;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import java.util.HashMap;
-import java.util.Map;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/users")
@@ -59,6 +62,7 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
         response.put("userId", userId);
         response.put("isValid", redisSessionListener.isValidSession(userId));
+        redisSessionListener.refreshSessionTTL(userId);
         return ResponseEntity.ok(response);
     }
 }
