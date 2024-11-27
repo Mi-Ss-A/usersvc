@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(schema = "mydb2", name = "chat_messages")
+@Table(schema = "wibee", name = "chat_messages")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -39,7 +39,7 @@ public class ChatMessage {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "sender", column = @Column(name = "message_sender")),
-            @AttributeOverride(name = "content", column = @Column(name = "message_content")),
+            @AttributeOverride(name = "content", column = @Column(name = "message_content", columnDefinition = "TEXT")),
             @AttributeOverride(name = "timestamp", column = @Column(name = "message_timestamp"))
     })
     private Message message;
@@ -79,7 +79,7 @@ public class ChatMessage {
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "isProcessed", column = @Column(name = "is_processed")),
+            @AttributeOverride(name = "isProcessed", column = @Column(name = "is_processed", columnDefinition = "BOOLEAN")),
             @AttributeOverride(name = "errorMessage", column = @Column(name = "error_message"))
     })
     private MessageStatus status;
@@ -99,14 +99,20 @@ public class ChatMessage {
         if (message != null) {
             message.timestamp = LocalDateTime.now();
 
-            if (message.getContent() != null) {
-                metadata = MessageMetadata.builder()
-                        .messageLength(message.getContent().length())
-                        .build();
-            }
+            metadata = MessageMetadata.builder()
+                    .messageLength(message.getContent() != null ? message.getContent().length() : 0)
+                    .build();
 
             status = MessageStatus.builder()
                     .isProcessed(message.getSender() == SenderType.AI)
+                    .build();
+        } else {
+            metadata = MessageMetadata.builder()
+                    .messageLength(0)
+                    .build();
+
+            status = MessageStatus.builder()
+                    .isProcessed(false)
                     .build();
         }
     }
