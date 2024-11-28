@@ -58,10 +58,11 @@ public class LoginController {
     }
 
     @GetMapping("/check-session")
+    @LoginRequired
     public ResponseEntity<Map<String, Object>> checkSession(@CurrentUser String userId) {
         Map<String, Object> response = new HashMap<>();
-        response.put("userId", userId);
-        response.put("isValid", redisSessionListener.isValidSession(userId));
+        String redisSessionId = redisSessionListener.getRedisSessionId(userId);
+        response.put("redisSessionId", redisSessionId);
         redisSessionListener.refreshSessionTTL(userId);
         return ResponseEntity.ok(response);
     }
