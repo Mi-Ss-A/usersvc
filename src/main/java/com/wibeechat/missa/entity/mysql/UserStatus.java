@@ -1,13 +1,13 @@
 package com.wibeechat.missa.entity.mysql;
 
+
 import lombok.Getter;
 
 @Getter
 public enum UserStatus {
     A("ACTIVE"),
     I("INACTIVE"),
-    D("DELETED"),
-    V("VIP");
+    D("DELETED");
 
     private final String code;
 
