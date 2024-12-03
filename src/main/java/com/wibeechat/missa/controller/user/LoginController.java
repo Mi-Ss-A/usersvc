@@ -15,6 +15,10 @@ import com.wibeechat.missa.annotation.LoginRequired;
 import com.wibeechat.missa.config.RedisSessionListener;
 import com.wibeechat.missa.dto.login.LoginRequest;
 import com.wibeechat.missa.dto.login.LoginResponse;
+import com.wibeechat.missa.dto.signUp.SignUpRequest;
+import com.wibeechat.missa.entity.mysql.UserInfo;
+import com.wibeechat.missa.exception.InvalidPasswordException;
+import com.wibeechat.missa.exception.UserNotFoundException;
 import com.wibeechat.missa.service.user.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -28,16 +32,30 @@ public class LoginController {
     private final RedisSessionListener redisSessionListener;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpSession session) {
-        LoginResponse response = userService.login(request);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+        try {
+            LoginResponse response = userService.login(request);
 
-        if (response.isSuccess()) {
-            String userId = response.getUserNo();
-            session.setAttribute("userId", userId);
+            if (response.isSuccess()) {
+                String userId = response.getUserNo();
+                session.setAttribute("userId", userId);
+                redisSessionListener.sessionCreated(session.getId(), userId);
+            }
+            return ResponseEntity.ok(response);
 
-            redisSessionListener.sessionCreated(session.getId(), userId);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "사용자를 찾을 수 없습니다."));
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "비밀번호가 올바르지 않습니다."));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
         }
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
@@ -66,4 +84,30 @@ public class LoginController {
         redisSessionListener.refreshSessionTTL(userId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/info")
+    @LoginRequired
+    public ResponseEntity<Map<String, Object>> info(@CurrentUser String userId) {
+        Map<String, Object> response = new HashMap<>();
+        UserInfo data = userService.getUserInfo(userId);
+        String status = data.getUserStatus().toString();
+        response.put("status", status);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/signUp")
+    public ResponseEntity<Map<String, Object>> signUp(@RequestBody SignUpRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            userService.signUp(request);
+            response.put("success", true);
+            response.put("message", "회원가입이 완료되었습니다.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "회원가입 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
 }
