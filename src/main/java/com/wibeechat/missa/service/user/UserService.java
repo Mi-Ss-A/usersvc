@@ -10,6 +10,7 @@ import com.wibeechat.missa.dto.login.LoginResponse;
 import com.wibeechat.missa.dto.signUp.SignUpRequest;
 import com.wibeechat.missa.entity.mysql.UserInfo;
 import com.wibeechat.missa.exception.InvalidPasswordException;
+import com.wibeechat.missa.exception.InvalidStatusException;
 import com.wibeechat.missa.exception.UserNotFoundException;
 import com.wibeechat.missa.repository.mysql.UserInfoRepository;
 
@@ -27,6 +28,10 @@ public class UserService {
         UserInfo user = userInfoRepository.findByUserId(request.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
+        if ("I".equals(user.getUserStatus()) || "D".equals(user.getUserStatus())) {
+            throw new InvalidStatusException();
+        }
+
         if (!user.getUserPw().equals(request.getUserPassword())) {
             throw new InvalidPasswordException();
         }
@@ -34,6 +39,7 @@ public class UserService {
         return LoginResponse.success(user.getUserNo());
     }
 
+    @Transactional(readOnly = true)
     public UserInfo getUserInfo(String userNo) {
         return userInfoRepository.findById(userNo)
                 .orElseThrow(UserNotFoundException::new);
@@ -60,5 +66,4 @@ public class UserService {
 
         userInfoRepository.save(newUser);
     }
-
 }

@@ -1,6 +1,5 @@
 package com.wibeechat.missa.exception;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,6 +11,7 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(400, "Invalid Input Value"),
 
     // 401 UNAUTHORIZED
+    INVALID_STATUS(401, "INVALID STATUS"),
     INVALID_PASSWORD(401, "Invalid Password"),
 
     // 404 NOT_FOUND
