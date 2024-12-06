@@ -61,7 +61,7 @@ public class UserService {
                 .userDateOfBirth(request.getUserDateOfBirth())
                 .userGender(request.getUserGender())
                 .userAddress(request.getUserAddress())
-                .userType("USER") // 기본 사용자 타입
+                .userType(request.getUserType())
                 .build();
 
         userInfoRepository.save(newUser);
