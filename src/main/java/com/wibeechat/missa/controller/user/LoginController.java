@@ -59,24 +59,18 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    @LoginRequired
-    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session, @CurrentUser String userId) {
         Map<String, Object> response = new HashMap<>();
-        String userId = (String) session.getAttribute("userId");
         if (userId != null) {
             session.invalidate();
             redisSessionListener.sessionDestroyed(session.getId());
-            response.put("success", true);
-            response.put("message", "로그아웃 되었습니다.");
-            return ResponseEntity.ok(response);
         }
-        response.put("success", false);
-        response.put("message", "세션이 존재하지 않습니다.");
-        return ResponseEntity.badRequest().body(response);
+        response.put("success", true);
+        response.put("message", "로그아웃 되었습니다.");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/check-session")
-    @LoginRequired
     public ResponseEntity<Map<String, Object>> checkSession(@CurrentUser String userId) {
         Map<String, Object> response = new HashMap<>();
         String redisSessionId = redisSessionListener.getRedisSessionId(userId);

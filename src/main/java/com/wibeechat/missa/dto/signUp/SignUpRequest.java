@@ -33,4 +33,6 @@ public class SignUpRequest {
     private Gender userGender;
     @NotBlank
     private String userAddress;
+    @NotBlank
+    private String userType;
 }
